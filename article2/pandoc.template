@@ -13,9 +13,9 @@ $if(subtitle)$\subtitle{$subtitle$}$endif$
 
 \maketitle
 
-$body$
+$if(doi)$\noindent\emph{doi:$doi$}\par$endif$
 
-$if(doi)$\emph{doi:$doi$}\par$endif$
+$body$
 
 \address{%
 $for(authors)$$authors.name$$if(authors.orcid)$\orcidlink{$authors.orcid$}$endif$\\
