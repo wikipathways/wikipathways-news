@@ -1,0 +1,45 @@
+\documentclass[a4paper]{report}
+\usepackage{lineno}
+\usepackage{WPnews}
+\usepackage{lipsum}
+\bibliographystyle{unsrt}
+
+\begin{document}
+
+\volume{1}
+\volnumber{1}
+\date{September 2026}
+
+\titlepage
+
+\begin{article}
+  \input{editorial/art}
+\end{article}
+
+\newpage
+
+\begin{article}
+  \input{article1/art}
+  \input{article1/wrapper.bbl}
+\end{article}
+
+\begin{bottombox}
+\begin{multicols}{2}
+\strong{Web page:}\\
+\url{https://www.wikipathways.org/} \\
+\strong{Editor-in-Chief:}\\
+Egon Willighagen \email{egon.willighagen@gmail.com}\\
+\strong{Editorial Board:}\\
+The WikiPathways curator team.\\
+\\
+\emph{WikiPathways News} is a publication of the WikiPathways project.
+All articles are copyrighted with GNU's FDL by the respective authors.
+Submissions can be submitted via the web page.\\
+\\
+\WP Project web pages:\\
+\url{https://www.wikipathways.org/} \\
+\url{https://github.com/wikipathways/}
+\end{multicols}
+\end{bottombox}
+
+\end{document}

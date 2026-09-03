@@ -1,0 +1,195 @@
+%%
+%% WPnews.sty -- formatting package for "WikiPathways News"
+%%
+%% Adapted from the CDKnews.sty package used for "CDK News"
+%% (Copyright (C) 2001--2002 by the R Core Development Team;
+%%  CDK News adaptation by the CDK project).
+%%
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from WPnews.sty.
+%%
+\def\fileversion{v0.0.1}
+\def\filename{WPnews}
+\def\filedate{2026/09/03}
+\def\docdate {2026/09/03}
+%%
+%% Package `WPnews' to use with LaTeX2e
+%%
+%% -*- LaTeX -*-
+\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+\ProvidesPackage{\filename}[\filedate\space\fileversion\space
+                        WPnews package]
+\typeout{Package: `\filename\space\fileversion \@spaces <\filedate>'}
+\typeout{English documentation as of <\docdate>}
+\RequirePackage{ifthen}
+\newboolean{WPnews@driver}
+\DeclareOption{driver}{\setboolean{WPnews@driver}{true}}
+\DeclareOption*{\PackageWarning{\filename}{Unknown option
+    `\CurrentOption'}}
+\ProcessOptions\relax
+\ifthenelse{\boolean{WPnews@driver}}{}{
+\RequirePackage{multicol,graphicx,color,fancyhdr,hyperref,xspace}
+\newcommand{\volume}[1]{\def\WPnews@volume{#1}}
+\newcommand{\volnumber}[1]{\def\WPnews@number{#1}}
+\renewcommand{\date}[1]{\def\WPnews@date{#1}}
+\setcounter{secnumdepth}{-1}
+\renewcommand{\author}[1]{\def\WPnews@author{#1}}
+\renewcommand{\title}[1]{\def\WPnews@title{#1}}
+\newcommand{\subtitle}[1]{\def\WPnews@subtitle{#1}}
+\newenvironment{article}{%
+  \author{}\title{}\subtitle{}}{\end{multicols}}
+\renewcommand{\maketitle}{
+  \begin{multicols}{2}[\chapter{\WPnews@title}\refstepcounter{chapter}][3cm]
+    \ifx\empty\WPnews@subtitle\else\noindent\textbf{\WPnews@subtitle}
+    \par\nobreak\addvspace{\baselineskip}\fi
+    \ifx\empty\WPnews@author\else\noindent\textit{\WPnews@author}
+    \par\nobreak\addvspace{\baselineskip}\fi
+    \@afterindentfalse\@nobreaktrue\@afterheading}
+\renewcommand\chapter{\secdef\WPnews@chapter\@schapter}
+\RequirePackage{hyphenat}
+\newcommand{\WPnews@chapter}{%
+  \renewcommand{\@seccntformat}[1]{}%
+  \@startsection{chapter}{0}{0mm}{%
+    -2\baselineskip \@plus -\baselineskip \@minus -.2ex}{\p@}{%
+    \normalfont\Huge\bfseries\raggedright}}
+\renewcommand*\l@chapter{\@dottedtocline{0}{0pt}{1em}}
+\def\@schapter#1{\section*#1}
+\renewenvironment{figure}[1][]{%
+  \def\@captype{figure}
+  \noindent
+  \begin{minipage}{\columnwidth}}{%
+  \end{minipage}\par\addvspace{\baselineskip}}
+\renewcommand{\theequation}{\@arabic\c@equation}
+\def\equation{%
+  \let\refstepcounter\H@refstepcounter
+  \H@equation
+  \def\newname{\arabic{chapter}.\theequation}%
+  \let\theHequation\newname%
+  \hyper@makecurrent{equation}%
+  \Hy@raisedlink{\hyper@anchorstart{\@currentHref}}%
+  \let\refstepcounter\new@refstepcounter}%
+\def\endequation{\Hy@raisedlink{\hyper@anchorend}\H@endequation}
+\renewcommand{\thefigure}{\@arabic\c@figure}
+\renewcommand{\thetable}{\@arabic\c@table}
+\renewcommand{\contentsname}{Contents of this issue:}
+\renewcommand\tableofcontents{%
+  \section*{\contentsname
+    \@mkboth{%
+      \MakeUppercase\contentsname}{\MakeUppercase\contentsname}}%
+  \@starttoc{toc}}
+\renewcommand{\titlepage}{%
+  \noindent
+  \rule{\textwidth}{1pt}\\[-.8\baselineskip]
+  \rule{\textwidth}{.5pt}
+  \begin{center}
+    \includegraphics[height=2cm]{WPlogo}\hspace{7mm}
+    \fontsize{2cm}{2cm}\selectfont
+    News
+  \end{center}
+  The Newsletter of the WikiPathways Project\hfill
+  Volume \WPnews@volume/\WPnews@number, \WPnews@date\\[-.5\baselineskip]
+  \rule{\textwidth}{.5pt}\\[-.8\baselineskip]
+  \rule{\textwidth}{1pt}
+  \vspace{1cm}
+  \fancyhf{}
+  \fancyhead[L]{Vol.~\WPnews@volume/\WPnews@number, \WPnews@date}
+  \fancyhead[R]{\thepage}
+  \fancyfoot[L]{WikiPathways News}
+  \fancyfoot[R]{wikipathways.org}
+  \thispagestyle{empty}
+  \begin{bottombox}
+    \begin{multicols}{2}
+      \setcounter{tocdepth}{0}
+      \tableofcontents
+      \setcounter{tocdepth}{2}
+    \end{multicols}
+  \end{bottombox}}
+\setlength{\textheight}{250mm}
+\setlength{\topmargin}{-10mm}
+\setlength{\textwidth}{17cm}
+\setlength{\oddsidemargin}{-6mm}
+\setlength{\columnseprule}{.1pt}
+\setlength{\columnsep}{20pt}
+\RequirePackage{ae,mathpple}
+\RequirePackage[T1]{fontenc}
+\renewcommand{\rmdefault}{ppl}
+\renewcommand{\sfdefault}{aess}
+\renewcommand{\ttdefault}{aett}
+\definecolor{Red}{rgb}{0.7,0,0}
+\definecolor{Blue}{rgb}{0,0,0.8}
+\definecolor{hellgrau}{rgb}{0.55,0.55,0.55}
+\newcommand{\WP}{WikiPathways\xspace}
+\newcommand{\address}[1]{\addvspace{\baselineskip}\noindent\emph{#1}}
+\newcommand{\email}[1]{\href{mailto:#1}{\normalfont\texttt{#1}}}
+\newsavebox{\WPnews@box}
+\newlength{\WPnews@len}
+\newenvironment{bottombox}{%
+  \begin{figure*}[b]
+    \begin{center}
+      \noindent
+      \begin{lrbox}{\WPnews@box}
+        \begin{minipage}{0.99\textwidth}}{%
+        \end{minipage}
+      \end{lrbox}
+      \addtolength{\WPnews@len}{\fboxsep}
+      \addtolength{\WPnews@len}{\fboxrule}
+      \hspace*{-\WPnews@len}\fbox{\usebox{\WPnews@box}}
+    \end{center}
+  \end{figure*}}
+\RequirePackage{verbatim}
+\def\boxedverbatim{%
+  \def\verbatim@processline{%
+    {\setbox0=\hbox{\the\verbatim@line}%
+    \hsize=\wd0 \the\verbatim@line\par}}%
+  \@minipagetrue
+  \@tempswatrue
+  \setbox0=\vbox
+  \bgroup\small\verbatim
+}
+\def\endboxedverbatim{%
+  \endverbatim
+  \unskip\setbox0=\lastbox
+  \egroup
+  \fbox{\box0}
+}
+\pagestyle{fancy}
+} % \ifthenelse{\boolean{WPnews@driver}}
+\newcommand\code{\bgroup\@codex}
+\def\@codex#1{{\normalfont\ttfamily\hyphenchar\font=-1 #1}\egroup}
+\newcommand{\kbd}[1]{{\normalfont\texttt{#1}}}
+\newcommand{\key}[1]{{\normalfont\texttt{\uppercase{#1}}}}
+\newcommand\samp{`\bgroup\@noligs\@sampx}
+\def\@sampx#1{{\normalfont\texttt{#1}}\egroup'}
+\newcommand{\var}[1]{{\normalfont\textsl{#1}}}
+\let\env=\code
+\newcommand{\file}[1]{{`\normalfont\textsf{#1}'}}
+\let\command=\code
+\let\option=\samp
+\newcommand{\dfn}[1]{{\normalfont\textsl{#1}}}
+\newcommand{\acronym}[1]{{\normalfont\textsc{\lowercase{#1}}}}
+\newcommand{\strong}[1]{{\normalfont\fontseries{b}\selectfont\hyphenchar\font=-1 #1}}
+\let\pkg=\code
+\let\module=\strong
+\let\class=\strong
+\RequirePackage{alltt}
+\newenvironment{example}{\begin{alltt}}{\end{alltt}}
+\newenvironment{smallexample}{\begin{alltt}\small}{\end{alltt}}
+\newenvironment{display}{\list{}{}\item\relax}{\endlist}
+\newenvironment{smallverbatim}{\small\verbatim}{\endverbatim}
+\providecommand{\operatorname}[1]{%
+  \mathop{\operator@font#1}\nolimits}
+\renewcommand{\P}{%
+  \mathop{\operator@font I\hspace{-1.5pt}P\hspace{.13pt}}}
+\newcommand{\E}{%
+  \mathop{\operator@font I\hspace{-1.5pt}E\hspace{.13pt}}}
+\newcommand{\VAR}{\operatorname{var}}
+\newcommand{\COV}{\operatorname{cov}}
+\newcommand{\COR}{\operatorname{cor}}
+\RequirePackage{amsfonts}
+\newcommand{\breakPeriod}{\leavevmode%
+  \prw@zbreak.\discretionary{}{}{}\prw@zbreak}
+\newcommand{\breakSlash}{\leavevmode%
+  \prw@zbreak/\discretionary{-}{}{}\prw@zbreak}
+\endinput
+%%
+%% End of file `WPnews.sty'.
