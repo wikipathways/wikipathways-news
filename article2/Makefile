@@ -7,6 +7,9 @@
 CSL           = apa-new.csl
 EXTRACT_CITO  = filters/extract-cito.lua
 INSERT_CITO   = filters/insert-cito-in-ref.lua
+# Not from bhxiv-gen-pdf: pulls the References heading + bibliography out
+# of $body$ so the template can place it after the DOI/author block.
+MOVE_REFS     = filters/move-refs-to-end.lua
 
 all: wrapper.pdf
 
@@ -16,6 +19,7 @@ art.tex: art.md pandoc.template art.bib
 	  --lua-filter='$(EXTRACT_CITO)' \
 	  --citeproc \
 	  --lua-filter='$(INSERT_CITO)' \
+	  --lua-filter='$(MOVE_REFS)' \
 	  --output=art.tex art.md
 
 wrapper.pdf: art.tex wrapper.tex
