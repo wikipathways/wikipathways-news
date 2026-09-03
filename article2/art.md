@@ -1,5 +1,6 @@
 ---
 title: Lorem Ipsum Pathway Visualization
+doi: 10.12688/openreseurope.18345.2
 subtitle: >
   This article demonstrates authoring a WikiPathways News article in
   Markdown, with author information in YAML, converted to LaTeX with
