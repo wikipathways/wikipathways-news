@@ -123,6 +123,15 @@
 \newcommand{\email}[1]{\href{mailto:#1}{\normalfont\texttt{#1}}}
 \definecolor{orcidlogocol}{rgb}{0.651,0.808,0.224}
 \newcommand{\orcidlink}[1]{\protect\href{https://orcid.org/#1}{\,\small\textcolor{orcidlogocol}{\faOrcid}\,}}
+\RequirePackage{etoolbox}
+% Indexed affiliation lookup, e.g. for authors listed with an
+% "affiliation: 1" index against a separate "affiliations:" list (as
+% used by the BioHackrXiv Markdown/pandoc workflow): \wpdefineaffiliation
+% registers index -> name, \wpaffiliations{1,2} prints the name(s) for a
+% (possibly comma-separated) list of indices, one per line.
+\newcommand{\wpdefineaffiliation}[2]{\expandafter\def\csname wpaffil@#1\endcsname{#2}}
+\newcommand{\wpprintaffiliation}[1]{\csname wpaffil@#1\endcsname\\}
+\newcommand{\wpaffiliations}[1]{\forcsvlist{\wpprintaffiliation}{#1}}
 \newsavebox{\WPnews@box}
 \newlength{\WPnews@len}
 \newenvironment{bottombox}{%

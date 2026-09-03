@@ -4,6 +4,8 @@ $-- Modeled after the author/affiliation handling in the BioHackrXiv
 $-- template (../../bhxiv-gen-pdf/resources/biohackrxiv/latex.template),
 $-- adapted to the \title/\subtitle/\author/\maketitle/\address macros
 $-- defined by WPnews.sty.
+$for(affiliations)$\wpdefineaffiliation{$affiliations.index$}{$affiliations.name$}
+$endfor$
 \title{$title$}
 $if(subtitle)$\subtitle{$subtitle$}$endif$
 \author{by $for(authors)$$authors.name$$if(authors.orcid)$\orcidlink{$authors.orcid$}$endif$$sep$ \& $endfor$}
@@ -12,6 +14,9 @@ $if(subtitle)$\subtitle{$subtitle$}$endif$
 
 $body$
 
-\address{$for(authors)$$authors.name$$sep$ \& $endfor$\\
-$affiliation$\\
-$for(authors)$\email{$authors.email$}$sep$, $endfor$}
+\address{%
+$for(authors)$$authors.name$$if(authors.orcid)$\orcidlink{$authors.orcid$}$endif$\\
+$if(authors.affiliation)$\wpaffiliations{$authors.affiliation$}$endif$
+$if(authors.email)$\email{$authors.email$}\\$endif$
+$sep$[0.5\baselineskip]
+$endfor$}

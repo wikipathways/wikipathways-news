@@ -8,10 +8,16 @@ authors:
   - name: John Smith
     email: john.smith@example.org
     orcid: 0000-0001-2345-6789
+    affiliation: 1
   - name: Jane Doe
     email: jane.doe@example.org
     orcid: 0000-0002-3456-7890
-affiliation: WikiPathways Project, Some Country
+    affiliation: 2
+affiliations:
+  - name: WikiPathways Project, Maastricht University, The Netherlands
+    index: 1
+  - name: Department of Bioinformatics, Example University, Some Country
+    index: 2
 ---
 
 # Introduction
