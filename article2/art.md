@@ -1,6 +1,7 @@
 ---
 title: Lorem Ipsum Pathway Visualization
 doi: 10.12688/openreseurope.18345.2
+cito-bibliography: art.bib
 subtitle: >
   This article demonstrates authoring a WikiPathways News article in
   Markdown, with author information in YAML, converted to LaTeX with
@@ -26,6 +27,8 @@ affiliations:
 
 \lipsum[1-2]
 
+This work uses the method described by Ipsum [@usesMethodIn:Lorem2026].
+
 # Methods
 
 \lipsum[3]
@@ -37,3 +40,5 @@ affiliations:
 # Conclusions
 
 \lipsum[6]
+
+# References
