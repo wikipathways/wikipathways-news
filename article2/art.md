@@ -16,6 +16,7 @@ authors:
 affiliations:
   - name: WikiPathways Project, Maastricht University, The Netherlands
     index: 1
+    ror: 00hx57361
   - name: Department of Bioinformatics, Example University, Some Country
     index: 2
 ---
