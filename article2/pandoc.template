@@ -6,7 +6,7 @@ $-- adapted to the \title/\subtitle/\author/\maketitle/\address macros
 $-- defined by WPnews.sty.
 \title{$title$}
 $if(subtitle)$\subtitle{$subtitle$}$endif$
-\author{by $for(authors)$$authors.name$$sep$ \& $endfor$}
+\author{by $for(authors)$$authors.name$$if(authors.orcid)$\orcidlink{$authors.orcid$}$endif$$sep$ \& $endfor$}
 
 \maketitle
 

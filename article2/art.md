@@ -7,8 +7,10 @@ subtitle: >
 authors:
   - name: John Smith
     email: john.smith@example.org
+    orcid: 0000-0001-2345-6789
   - name: Jane Doe
     email: jane.doe@example.org
+    orcid: 0000-0002-3456-7890
 affiliation: WikiPathways Project, Some Country
 ---
 
