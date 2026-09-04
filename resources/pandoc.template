@@ -24,4 +24,4 @@ $if(authors.email)$\email{$authors.email$}\\$endif$
 $sep$[0.5\baselineskip]
 $endfor$}
 
-$if(wpreferences)$$wpreferences$$endif$
+$if(haswpcitations)$\printbibliography[title=References]$endif$

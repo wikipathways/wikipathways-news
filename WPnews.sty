@@ -29,6 +29,11 @@
 \ProcessOptions\relax
 \ifthenelse{\boolean{WPnews@driver}}{}{
 \RequirePackage{multicol,graphicx,color,fancyhdr,hyperref,xspace,fontawesome5,tikz,xparse,calc}
+% biblatex, shared by every article (LaTeX- or Markdown/pandoc-authored):
+% backend=biber is biblatex's default, more capable backend.
+% style=trad-unsrt reproduces the look of the previous plain bibtex
+% `unsrt` style. sorting=none keeps citation order, as `unsrt` did.
+\RequirePackage[backend=biber,style=trad-unsrt,sorting=none]{biblatex}
 \newcommand{\volume}[1]{\def\WPnews@volume{#1}}
 \newcommand{\volnumber}[1]{\def\WPnews@number{#1}}
 \renewcommand{\date}[1]{\def\WPnews@date{#1}}
@@ -37,7 +42,8 @@
 \renewcommand{\title}[1]{\def\WPnews@title{#1}}
 \newcommand{\subtitle}[1]{\def\WPnews@subtitle{#1}}
 \newenvironment{article}{%
-  \author{}\title{}\subtitle{}}{\end{multicols}}
+  \begin{refsection}%
+  \author{}\title{}\subtitle{}}{\end{multicols}\end{refsection}}
 \renewcommand{\maketitle}{
   \begin{multicols}{2}[\chapter{\WPnews@title}\refstepcounter{chapter}][3cm]
     \ifx\empty\WPnews@subtitle\else\noindent\textbf{\WPnews@subtitle}
@@ -53,7 +59,7 @@
     -2\baselineskip \@plus -\baselineskip \@minus -.2ex}{\p@}{%
     \normalfont\Huge\bfseries\raggedright}}
 \renewcommand*\l@chapter{\@dottedtocline{0}{0pt}{1em}}
-\def\@schapter#1{\section*#1}
+\def\@schapter#1{\section*{#1}}
 \renewenvironment{figure}[1][]{%
   \def\@captype{figure}
   \noindent
@@ -156,40 +162,20 @@
     {\expandafter\def\csname wpaffil@#2\endcsname{#3\,\rorlink{#1}}}}
 \newcommand{\wpprintaffiliation}[1]{\csname wpaffil@#1\endcsname\\}
 \newcommand{\wpaffiliations}[1]{\forcsvlist{\wpprintaffiliation}{#1}}
-% Support for pandoc's --citeproc LaTeX output (used by the CiTO-aware
-% Markdown/pandoc article workflow in article2/), copied from pandoc's
-% own default LaTeX template (`pandoc -D latex`, the "$if(csl-refs)$"
-% block). Needed because WPnews.sty otherwise has no CSLReferences
-% environment for the \bibitem commands citeproc emits to live in.
-\NewDocumentCommand\citeproctext{}{}
-\NewDocumentCommand\citeproc{mm}{%
-  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
- % allow citations to break across lines
- \let\@cite@ofmt\@firstofone
- % avoid brackets around text for \cite:
- \def\@biblabel#1{}
- \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
-\newlength{\cslhangindent}
-\setlength{\cslhangindent}{1.5em}
-\newlength{\csllabelwidth}
-\setlength{\csllabelwidth}{3em}
-\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
- {\begin{list}{}{%
-  \setlength{\itemindent}{0pt}
-  \setlength{\leftmargin}{0pt}
-  \setlength{\parsep}{0pt}
-  % turn on hanging indent if param 1 is 1
-  \ifodd #1
-   \setlength{\leftmargin}{\cslhangindent}
-   \setlength{\itemindent}{-1\cslhangindent}
+% CiTO citation-intention annotation (used by the Markdown/pandoc article
+% workflow in article2/, see resources/filters/extract-cito.lua and
+% cito-to-biblatex.lua, but equally usable from hand-written LaTeX
+% articles): \wpcitoannotate{key}{property} records a CiTO property for a
+% bibliography entry; \finentrypunct is biblatex's per-entry hook (fired
+% just before each entry's closing punctuation) and is redefined here to
+% print "[cito:property]" for entries that have one.
+\newcommand{\wpcitoannotate}[2]{\expandafter\def\csname wpcito@#1\endcsname{#2}}
+\let\WPnews@origfinentrypunct\finentrypunct
+\renewcommand*{\finentrypunct}{%
+  \ifcsname wpcito@\thefield{entrykey}\endcsname
+    \space\textbf{[cito:\csname wpcito@\thefield{entrykey}\endcsname]}%
   \fi
-  % set entry spacing
-  \setlength{\itemsep}{#2\baselineskip}}}
- {\end{list}}
-\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
-\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
-\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
-\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+  \WPnews@origfinentrypunct}
 \newsavebox{\WPnews@box}
 \newlength{\WPnews@len}
 \newenvironment{bottombox}{%

@@ -7,10 +7,10 @@ two article folders just get there by different routes.
 
 ```
 article1/art.tex  ──────────────┐
-editorial/art.tex ───────────── ┼─▶ pdflatex/bibtex ──▶ wrapper.pdf (each)
+editorial/art.tex ───────────── ┼─▶ pdflatex/biblatex ──▶ wrapper.pdf (each)
 article2/art.md ──▶ pandoc ─────┘         │
                                            ▼
-                    newsletter.tex ──▶ pdflatex ──▶ newsletter.pdf
+                    newsletter.tex ──▶ pdflatex/biblatex ──▶ newsletter.pdf
 ```
 
 ## The shared LaTeX layer: WPnews.sty
@@ -33,11 +33,23 @@ from a per-article `wrapper.tex` (`\documentclass{report}` +
   `\csname...\endcsname`-based storage) so multiple authors can share, and
   print, affiliation text (with an optional ROR badge) by numeric index
   instead of repeating it.
-- The `CSLReferences` environment, `\citeproc`/`\citeproctext`, and related
-  `\@biblabel`/`\@cite` tweaks — copied from pandoc's own default LaTeX
-  template (`pandoc -D latex`). These make `\bibitem` commands emitted by
-  pandoc's `--citeproc` (see below) work correctly; without them the
-  reference list has nowhere to live and LaTeX errors with "Lonely \item".
+- **biblatex**, loaded with `backend=biber` (biblatex's default, more
+  capable backend) and `style=trad-unsrt` (a style from the `biblatex-trad`
+  family that reproduces the look of the plain `bibtex` `unsrt` style this
+  project used before). `\cite`/`\printbibliography` are biblatex's, not
+  plain LaTeX's/`natbib`'s.
+- Every `\begin{article}...\end{article}` opens/closes a biblatex
+  `refsection`, so each article's citations and `\printbibliography` are
+  scoped to that article alone: numbering restarts at `[1]` per article, and
+  (critically, for a document assembling several independently-authored
+  articles) one article's citations can never resolve against another
+  article's `.bib` file even though `newsletter.tex` loads every article's
+  resource at once (see "Assembling the issue" below).
+- `\wpcitoannotate{key}{property}` / a redefined `\finentrypunct` — biblatex's
+  per-entry hook, fired just before each bibliography entry's closing
+  punctuation — print a bold `[cito:property]` annotation after entries that
+  have one (see CiTO, under Route B below). This works for both routes,
+  since both ultimately go through the same `\printbibliography`.
 
 Fonts are URW Palatino/`mathpple`+`ae` (`T1` encoding); ISSN/branding text and
 the WikiPathways logo (`WPlogo.png`) are on the title page and back-page
@@ -46,10 +58,8 @@ colophon.
 ## Route A — articles written directly in LaTeX
 
 `editorial/` and `article1/` are plain `art.tex` files using the macros
-above, with an `art.bib`/`\bibliography{art}` for citations where needed.
-Each folder's `Makefile` runs `pdflatex`, and `bibtex` when a `.bib` file is
-present, to produce `wrapper.pdf` — the standard, decades-old LaTeX
-bibliography toolchain (`.aux` → `bibtex` → `.bbl` → re-run `pdflatex`).
+above, with an `\addbibresource{art.bib}` (in the surrounding `wrapper.tex`'s
+preamble) and `\printbibliography` for citations where needed.
 
 ## Route B — articles written in Markdown, converted with pandoc
 
@@ -59,60 +69,84 @@ index), and an affiliations list (name/index/ROR). Its `Makefile` runs:
 
 ```
 pandoc --from markdown+raw_tex -s --template=resources/pandoc.template \
-  --csl=resources/apa-new.csl \
+  --biblatex \
   --lua-filter=resources/filters/extract-cito.lua \
-  --citeproc \
-  --lua-filter=resources/filters/insert-cito-in-ref.lua \
-  --lua-filter=resources/filters/move-refs-to-end.lua \
+  --lua-filter=resources/filters/cito-to-biblatex.lua \
   --output=art.tex art.md
 ```
 
-This pipeline, and the two `extract-cito`/`insert-cito-in-ref` filters and
-the `apa-new.csl` style, are taken from the
+This is modeled on the pandoc invocation in the
 [BioHackrXiv](https://biohackrxiv.org/) paper-generation project
-(`../bhxiv-gen-pdf/`, see its `bin/gen-pdf` and
-`resources/biohackrxiv/latex.template`) — the same mechanism BioHackrXiv uses
-to turn a Markdown paper into a PDF, reused here for a WPnews.sty-styled
-article fragment instead of a full standalone BioHackrXiv paper:
+(`../bhxiv-gen-pdf/`, see its `bin/gen-pdf`) — reused here for a
+WPnews.sty-styled article fragment instead of a full standalone BioHackrXiv
+paper, and with `--biblatex` instead of BioHackrXiv's own `--citeproc`, so
+that both authoring routes ultimately share the exact same biblatex
+rendering (numbering, style, per-article `refsection` scoping) rather than
+two different citation engines producing two different-looking reference
+lists:
 
 - **[`resources/pandoc.template`](resources/pandoc.template)** — a minimal
   pandoc LaTeX template (no `\documentclass`/preamble) that reads the YAML
   metadata and emits `\title`/`\subtitle`/`\author` (with `\orcidlink` per
-  author) and `\wpdefineaffiliation` calls (with `\rorlink` when a `ror` is
-  given), i.e. it drives WPnews.sty's macros instead of the `authblk`-based
-  ones in BioHackrXiv's own template.
-- **`--citeproc` + `resources/apa-new.csl`** — pandoc's built-in
-  [citeproc](https://github.com/jgm/pandoc/blob/main/MANUAL.txt#citations)
-  engine resolves `[@key]` citations against the article's `art.bib` and
-  renders a formatted, numbered/author-date reference list per the CSL
-  style — no separate `bibtex` step is needed for this route.
-- **`resources/filters/extract-cito.lua`** — runs *before* citeproc. It lets
-  a citation key carry a [CiTO](https://sparontologies.github.io/cito/current/cito.html)
-  citation-intention prefix, e.g. `[@usesMethodIn:Lorem2026]`, strips the
-  prefix so citeproc sees the plain BibTeX key `Lorem2026`, and records the
-  CiTO property for the next filter.
-- **`resources/filters/insert-cito-in-ref.lua`** — runs *after* citeproc. It
-  finds the matching bibliography entry (a `Div` with id `ref-Lorem2026`) and
-  appends a bold `[cito:usesMethodIn]` annotation to it.
-- **`resources/filters/move-refs-to-end.lua`** — not from BioHackrXiv; a
-  small filter written for this project. Pandoc/citeproc normally inserts the
-  formatted bibliography right where the `# References` heading sits in the
-  Markdown body. This filter extracts that heading and the citeproc `refs`
-  `Div` out of the body and stores them in the document's metadata (as
-  `wpreferences`) instead, so `resources/pandoc.template` can place the
-  reference list after the DOI and author/affiliation block, matching the
-  layout used elsewhere in the newsletter.
+  author), `\wpdefineaffiliation` calls (with `\rorlink` when a `ror` is
+  given), and a `\printbibliography[title=References]` after the
+  DOI/author/affiliation block — driving WPnews.sty's macros instead of the
+  `authblk`-based ones in BioHackrXiv's own template.
+- **`--biblatex`** — pandoc's native biblatex output mode: `[@key]`
+  citations become plain `\cite{key}` commands, with *no* bibliography text
+  generated by pandoc itself (unlike `--citeproc`) — biblatex/`biber`
+  render the actual reference list later, at `pdflatex` time, from
+  `article2/art.bib` (loaded via `\addbibresource` in `article2/wrapper.tex`,
+  or in `newsletter.tex` for the merged build). Because of this, a bare
+  `# References` heading (which `--citeproc` needed as an insertion point)
+  is no longer used in `art.md` — pandoc silently drops it, and
+  `\printbibliography` in the template supplies the heading instead.
+- **`resources/filters/extract-cito.lua`** (from `bhxiv-gen-pdf`) — lets a
+  citation key carry a
+  [CiTO](https://sparontologies.github.io/cito/current/cito.html)
+  citation-intention prefix, e.g. `[@usesMethodIn:LoremVis2026]`, strips the
+  prefix so `\cite{LoremVis2026}` gets the plain BibTeX key, and records the
+  CiTO property (as pandoc metadata) for the next filter.
+- **`resources/filters/cito-to-biblatex.lua`** — not from BioHackrXiv (whose
+  own `insert-cito-in-ref.lua` annotates citeproc's pre-rendered bibliography
+  text, which doesn't exist under `--biblatex`). Reads the CiTO property
+  metadata `extract-cito.lua` recorded and emits a
+  `\wpcitoannotate{key}{property}` call at the top of the document, for
+  WPnews.sty's `\finentrypunct` hook to pick up when biblatex prints that
+  entry.
 
 The resulting `art.tex` is a WPnews.sty-flavoured fragment exactly like the
 hand-written ones, so from that point on it's built the same way as route A:
-`pdflatex` via `article2/wrapper.tex`.
+`pdflatex`/biblatex via `article2/wrapper.tex`.
 
 ## Assembling the issue
 
 `newsletter.tex` is the top-level document: it sets the volume/date, calls
-`\titlepage`, then wraps each article's `art.tex` (plus its `.bbl`, for
-articles using the plain LaTeX bibliography route) in a WPnews.sty `article`
-environment, and finishes with a back-page colophon. The top-level
-`Makefile`'s `separateArts` target builds every article subfolder first (so
-their `art.tex`/`.bbl` exist), then runs `pdflatex` twice on `newsletter.tex`
-(twice, so cross-references and the table of contents settle).
+`\titlepage`, declares `\addbibresource` for every article's `.bib` file,
+then `\input`s each article's `art.tex` inside a WPnews.sty `article`
+environment (which, as above, opens its own `refsection` — so each article's
+citations resolve only against its own `.bib`, and its `\printbibliography`
+call renders only its own references, independently of the other articles
+sharing the document), and finishes with a back-page colophon.
+
+Every `Makefile` (top-level and per-article) runs `pdflatex`, then a single
+`biber <jobname>` call — with `backend=biber`, one `biber` run resolves
+*every* `refsection` in the document at once, regardless of how many there
+are, unlike the `backend=bibtex` fallback this project used before biber was
+installed (which needed a separate `bibtex` run per `refsection`, on
+filenames only discoverable after the first `pdflatex` pass) — then two more
+`pdflatex` passes. Because each article's `art.tex` runs through the
+identical `\begin{article}...\printbibliography...\end{article}` sequence
+whether it's compiled standalone (via its own `wrapper.tex`) or merged (via
+`newsletter.tex`), the two contexts render that article's reference list
+identically.
+
+Two articles' `.bib` files should not reuse the same citation key, even if
+they never cite each other's entries: `newsletter.tex` loads every article's
+`.bib` resource at once (each `refsection` only *uses* its own article's
+keys, but all resources are visible to all of them), so a key repeated
+across two `.bib` files is a real ambiguity once they're merged into one
+document — `article1/art.bib` and `article2/art.bib` collided this way
+during development (both had copied the same placeholder entry under the
+key `Lorem2026`) and were fixed by renaming one; keep citation keys unique
+newsletter-wide to avoid it recurring.

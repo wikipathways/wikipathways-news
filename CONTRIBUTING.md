@@ -34,17 +34,49 @@ pdflatex -interaction=nonstopmode -halt-on-error art
 
 Why `-interaction=nonstopmode -halt-on-error`: plain `pdflatex` drops into an
 interactive `?` prompt on error and hangs; these flags make it fail fast and
-non-interactively, which is what surfaced the "Lonely `\item`" error from
-pandoc's `\bibitem` output not having a `CSLReferences` list environment to
-live in (see `TECHNOLOGY.md`).
+non-interactively. This is also useful for catching *silent* breakage:
+comparing `pdftotext` output before/after a change surfaced a case where
+`\printbibliography[title=References]` rendered as a giant "R" followed by
+"eferences" in body text on the next line — a latent missing-braces bug in
+`WPnews.sty`'s `\@schapter` (`\section*#1` instead of `\section*{#1}`) that
+plain-macro-token titles like `\bibname` had always accidentally avoided
+triggering, until a literal multi-character string was passed through the
+same code path for the first time.
 
-## `bibtex`
+## `biber`
 
-Invoked by each article `Makefile`, not run by hand — but worth knowing when
-it fires: only for articles using the plain-LaTeX bibliography route
-(`\bibliography{art}` + `art.bib`, as in `article1/`). Route B
-(`article2/`, Markdown via pandoc) uses pandoc's `--citeproc` instead and
-never calls `bibtex`.
+Invoked by each `Makefile` (top-level and per-article), not usually run by
+hand — every article uses biblatex with `backend=biber` (see
+`TECHNOLOGY.md`). One `biber <jobname>` run resolves *every*
+`\begin{article}`'s `refsection` in that document at once, regardless of how
+many there are — unlike `bibtex`, which needs a separate run per
+`refsection`, on a filename only known after the first `pdflatex` pass (see
+below for why that was the fallback for a while). Full sequence when
+debugging by hand:
+
+```sh
+pdflatex -interaction=nonstopmode wrapper
+biber wrapper
+pdflatex -interaction=nonstopmode wrapper
+pdflatex -interaction=nonstopmode wrapper
+```
+
+Why: `biber`'s own log (`<jobname>.blg`) is where to look first when a
+citation doesn't resolve or a `.bib` entry seems to be getting the wrong
+data — it reports, per `refsection`, which `.bib` file(s) it searched and
+what it found, which is more direct than working backwards from `pdflatex`'s
+"undefined reference" warnings.
+
+Biber wasn't available when biblatex was first added to this project (this
+system had no `biber` installed, and no passwordless `sudo` to add it
+non-interactively — checked with `apt-cache policy biber` and `sudo -n
+true`), so `backend=bibtex` (the classic engine, already installed) was used
+initially; migrating to `backend=biber` once it was installed only meant
+changing one option in `WPnews.sty` and replacing each `Makefile`'s
+discovery-loop-plus-bibtex step with a single `biber <jobname>` call — the
+rest of the pipeline (biblatex itself, `\printbibliography`, `refsection`
+scoping, the CiTO `\finentrypunct` hook) is backend-agnostic and needed no
+changes.
 
 ## `pandoc`, run directly
 
@@ -57,17 +89,24 @@ internal AST.
 pandoc --from markdown+raw_tex -s --template=t.template --output=t-out.tex t.md
 cat t-out.tex
 
-# Inspect pandoc's internal document tree (Cite/Div/Header nodes) instead of
-# LaTeX text, to see exactly what a Lua filter needs to match against:
-pandoc --from markdown+raw_tex -t native --citeproc --csl=apa-new.csl art.md
+# Inspect pandoc's internal document tree (Cite/Header/Meta nodes) instead
+# of LaTeX text, standalone (-s) so the YAML metadata block is included, to
+# see exactly what a Lua filter needs to match against:
+pandoc --from markdown+raw_tex -t native -s \
+  --lua-filter=resources/filters/extract-cito.lua art.md
 ```
 
 Why: the first form was how the minimal `pandoc.template` fragment (title/
 author/affiliation from YAML) was designed and checked before wiring it into
-`article2/Makefile`. The second (`-t native`) was essential for writing
-`resources/filters/move-refs-to-end.lua` correctly — it showed that
-citeproc's bibliography is a `Div` with id `"refs"` following a
-`Header` with id `"references"`, which the filter needed to match exactly.
+`article2/Makefile`, and later how `--biblatex`'s output (a plain
+`\cite{key}`, versus `--citeproc`'s pre-rendered text) was confirmed before
+switching the pipeline over. The second (`-t native -s`) was essential for
+writing `resources/filters/cito-to-biblatex.lua` correctly — it showed
+`extract-cito.lua` stores each citation's CiTO property as
+`citation_properties: MetaMap {key: MetaList [MetaString "property"]}` in
+the document metadata, i.e. the filter needed `pandoc.utils.stringify()` on
+the list items but not the (plain Lua string) map keys — not obvious
+without looking at the actual wire format.
 
 ## `pdftoppm` (poppler-utils) + visual inspection
 
@@ -96,11 +135,13 @@ were a code bug when it's actually a missing package).
 kpsewhich fontawesome5.sty tikz.sty lipsum.sty biblatex.sty
 ```
 
-Why: e.g. before adding ROR-badge support (which needs `tikz`) or the
-CiTO/citeproc pipeline (which needs `biblatex`, though ultimately unused
-directly — see `TECHNOLOGY.md`), confirming the package resolves on this
-system avoids chasing a phantom "undefined control sequence" that's really
-just a missing `texlive` package.
+Why: e.g. before adding ROR-badge support (which needs `tikz`) or migrating
+citations to biblatex (which needs `biblatex.sty`, plus the specific style
+package for whatever `style=` is chosen — `kpsewhich trad-unsrt.bbx`
+confirmed the `biblatex-trad` style family, used to reproduce the old plain
+`bibtex` `unsrt` look, was actually installed), confirming a package
+resolves on this system avoids chasing a phantom "undefined control
+sequence" that's really just a missing `texlive` package.
 
 ## `curl`
 
@@ -137,8 +178,12 @@ rather than reconstructing.
 ## Plain filesystem commands (`mkdir`, `mv`, `ls`)
 
 Used for straightforward restructuring, e.g. moving `pandoc.template`,
-`apa-new.csl`, and the Lua filters from `article2/` into a shared top-level
-`resources/` folder:
+the CSL style then in use, and the Lua filters from `article2/` into a
+shared top-level `resources/` folder (the CSL style was later deleted
+outright, once the CiTO/citation pipeline moved from pandoc's `--citeproc`
+to native `--biblatex` and stopped needing one — deleting a file that has
+become genuinely unused, rather than leaving it as clutter, is itself just
+`rm`):
 
 ```sh
 mkdir -p resources/filters

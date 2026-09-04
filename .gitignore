@@ -1,6 +1,9 @@
+**/*.run.xml
 **/*.aux
 **/*.bbl
+**/*-blx.bib
 **/*.blg
+**/*.bcf
 **/*.log
 **/*.out
 **/*.pdf

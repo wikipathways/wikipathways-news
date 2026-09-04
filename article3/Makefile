@@ -10,8 +10,12 @@
 # recorded into a \wpcitoannotate{key}{property} call, which WPnews.sty's
 # biblatex \finentrypunct hook looks up when printing that entry.
 # mark-has-citations.lua (not from bhxiv-gen-pdf) sets the haswpcitations
-# metadata flag pandoc.template checks before emitting \printbibliography,
-# so an article with no citations gets no References section (see article3/).
+# metadata flag pandoc.template checks before emitting \printbibliography.
+#
+# This article has no art.bib/citations at all - it exists to demonstrate
+# that both authoring routes support articles with no references section:
+# with no citations, haswpcitations is never set, so pandoc.template's
+# $if(haswpcitations)$ around \printbibliography omits it entirely.
 RESOURCES     = ../resources
 TEMPLATE      = $(RESOURCES)/pandoc.template
 EXTRACT_CITO  = $(RESOURCES)/filters/extract-cito.lua
@@ -20,7 +24,7 @@ MARK_HAS_CITATIONS = $(RESOURCES)/filters/mark-has-citations.lua
 
 all: wrapper.pdf
 
-art.tex: art.md $(TEMPLATE) art.bib
+art.tex: art.md $(TEMPLATE)
 	pandoc --from markdown+raw_tex -s --template='$(TEMPLATE)' \
 	  --biblatex \
 	  --lua-filter='$(MARK_HAS_CITATIONS)' \
@@ -28,11 +32,7 @@ art.tex: art.md $(TEMPLATE) art.bib
 	  --lua-filter='$(CITO_TO_BIBLATEX)' \
 	  --output=art.tex art.md
 
-# biblatex (backend=biber, see WPnews.sty): one biber run resolves every
-# \begin{article}'s refsection in this document, regardless of how many.
-wrapper.pdf: art.tex wrapper.tex art.bib
-	pdflatex -interaction=nonstopmode wrapper
-	biber wrapper
+wrapper.pdf: art.tex wrapper.tex
 	pdflatex -interaction=nonstopmode wrapper
 	pdflatex -interaction=nonstopmode wrapper
 

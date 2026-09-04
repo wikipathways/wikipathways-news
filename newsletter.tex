@@ -2,7 +2,9 @@
 \usepackage{lineno}
 \usepackage{WPnews}
 \usepackage{lipsum}
-\bibliographystyle{unsrt}
+
+\addbibresource{article1/art.bib}
+\addbibresource{article2/art.bib}
 
 \begin{document}
 
@@ -20,13 +22,18 @@
 
 \begin{article}
   \input{article1/art}
-  \input{article1/wrapper.bbl}
 \end{article}
 
 \newpage
 
 \begin{article}
   \input{article2/art}
+\end{article}
+
+\newpage
+
+\begin{article}
+  \input{article3/art}
 \end{article}
 
 \begin{bottombox}
