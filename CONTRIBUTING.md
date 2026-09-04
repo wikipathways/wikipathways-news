@@ -13,7 +13,7 @@ article folders, so a single article can be iterated on without rebuilding
 the whole issue.
 
 ```sh
-cd article2 && make clean && make
+cd vol1/issue1/article2 && make clean && make
 ```
 
 Why: `make clean && make` (rather than plain `make`) guarantees a fresh
@@ -91,9 +91,10 @@ cat t-out.tex
 
 # Inspect pandoc's internal document tree (Cite/Header/Meta nodes) instead
 # of LaTeX text, standalone (-s) so the YAML metadata block is included, to
-# see exactly what a Lua filter needs to match against:
+# see exactly what a Lua filter needs to match against (run from an
+# articleN/ folder, hence ../../../resources/ - see TECHNOLOGY.md):
 pandoc --from markdown+raw_tex -t native -s \
-  --lua-filter=resources/filters/extract-cito.lua art.md
+  --lua-filter=../../../resources/filters/extract-cito.lua art.md
 ```
 
 Why: the first form was how the minimal `pandoc.template` fragment (title/
@@ -205,3 +206,45 @@ full `newsletter.pdf`) was rebuilt from a clean state (`make clean && make`)
 to confirm the updated `../resources/...` paths in `article2/Makefile` were
 correct — a rename/move is only "done" once the build proves the new paths
 resolve, not when the files are in the new location.
+
+The same tools were used for a much larger restructuring: splitting the
+original single-issue layout into `vol1/issue1/` (a real issue) and
+`template/` (a copy source for future issues), keeping only the truly
+shared files (`WPnews.sty`, `WPicon.png`, `resources/`) at the repository
+root:
+
+```sh
+mkdir -p vol1/issue1 template
+for f in newsletter.tex Makefile editorial article1 article2 article3; do
+  cp -r "$f" vol1/issue1/
+  cp -r "$f" template/
+done
+rm -rf newsletter.tex Makefile editorial article1 article2 article3
+```
+
+Why `cp` twice then `rm`, rather than `mv` once plus a second `cp`: at that
+point it wasn't yet decided whether `template/` or `vol1/issue1/` should be
+the "original" and the other a copy of it — doing both as copies from the
+same source and only then deleting the source treats them symmetrically and
+avoids ever having a moment where only one of the two exists.
+
+Because `template/` sits one level below the repository root but its copied
+paths assume the two-levels-down position a real `vol<N>/issue<M>/` has
+(see `TECHNOLOGY.md`), it cannot be built in place — confirmed by trying,
+which failed with `File '../../../WPnews.sty' not found`, exactly as
+expected once the depth mismatch was worked out. To actually verify the
+template is correct, it needs testing at the depth it will be used at:
+
+```sh
+mkdir -p /tmp/tpl-verify/volX/issueY
+cp WPnews.sty WPicon.png /tmp/tpl-verify/
+cp -r resources /tmp/tpl-verify/
+cp -r template/* /tmp/tpl-verify/volX/issueY/
+cd /tmp/tpl-verify/volX/issueY && make
+```
+
+Why: this is the only way to test what a *user* of the template will
+actually experience (`cp -r template vol2/issue1 && cd vol2/issue1 && make`)
+without touching the real repository — and it caught nothing, because the
+paths had already been written for that depth from the start, but it's what
+would have caught it if they hadn't.

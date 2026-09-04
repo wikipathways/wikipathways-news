@@ -1,8 +1,9 @@
 $-- Minimal pandoc LaTeX template producing a WPnews.sty-compatible
 $-- article fragment (no documentclass/preamble) from Markdown+YAML.
 $-- Modeled after the author/affiliation handling in the BioHackrXiv
-$-- template (../../bhxiv-gen-pdf/resources/biohackrxiv/latex.template),
-$-- adapted to the \title/\subtitle/\author/\maketitle/\address macros
+$-- template (the sibling repo ../bhxiv-gen-pdf/, next to this project's
+$-- own root: resources/biohackrxiv/latex.template), adapted to the
+$-- \title/\subtitle/\author/\maketitle/\address macros
 $-- defined by WPnews.sty.
 $for(affiliations)$$if(affiliations.ror)$\wpdefineaffiliation[$affiliations.ror$]{$affiliations.index$}{$affiliations.name$}
 $else$\wpdefineaffiliation{$affiliations.index$}{$affiliations.name$}

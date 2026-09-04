@@ -1,9 +1,9 @@
 # pandoc.template and the CiTO-aware citation lua filters live in
-# ../resources/ (shared with any future pandoc-based article).
-# extract-cito.lua is copied from
-# ../../bhxiv-gen-pdf/resources/biohackrxiv/filters/ (see bin/gen-pdf
-# there for the pandoc invocation this is modeled on): it strips the
-# "cito-property:" prefix (e.g. usesMethodIn:) from citation keys before
+# ../../../resources/ (this project's root, shared across every issue).
+# extract-cito.lua is copied from the sibling repo ../bhxiv-gen-pdf/, next
+# to this project's own root (resources/biohackrxiv/filters/; see
+# bin/gen-pdf there for the pandoc invocation this is modeled on): it
+# strips the "cito-property:" prefix (e.g. usesMethodIn:) from citation keys before
 # pandoc emits \cite{key} for biblatex to resolve against art.bib.
 # cito-to-biblatex.lua (not from bhxiv-gen-pdf, which annotates citeproc's
 # pre-rendered output instead) turns the CiTO property extract-cito.lua
@@ -12,7 +12,7 @@
 # mark-has-citations.lua (not from bhxiv-gen-pdf) sets the haswpcitations
 # metadata flag pandoc.template checks before emitting \printbibliography,
 # so an article with no citations gets no References section (see article3/).
-RESOURCES     = ../resources
+RESOURCES     = ../../../resources
 TEMPLATE      = $(RESOURCES)/pandoc.template
 EXTRACT_CITO  = $(RESOURCES)/filters/extract-cito.lua
 CITO_TO_BIBLATEX = $(RESOURCES)/filters/cito-to-biblatex.lua

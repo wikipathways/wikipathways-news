@@ -1,9 +1,35 @@
 # Technology behind the build
 
-This project produces a PDF two ways: a per-article `wrapper.pdf` (built
-inside `editorial/`, `article1/`, `article2/`, `article3/`) and the merged
-`newsletter.pdf` (built at the project root). Both are plain LaTeX documents
-in the end — the article folders just get there by different routes.
+## Repository structure: one root, many issues
+
+This repository holds many issues (`vol1/issue1/`, `vol1/issue2/`,
+`vol2/issue1/`, ...), each two levels below the repository root, plus
+`template/` (a copy source for a new issue - not a real issue itself, and
+not built in place; see README.md). Everything an issue needs that's
+*shared* across every issue - `WPnews.sty`, `WPicon.png`, `resources/` (the
+pandoc pipeline for route B below) - lives once at the repository root.
+
+Every path inside an issue that reaches those shared files is therefore
+written relative to that fixed two-levels-down position: `../../WPnews.sty`
+and `\graphicspath{{../../}}` in `newsletter.tex`, `../../../WPnews.sty` in
+each `articleN/wrapper.tex` and `editorial/wrapper.tex` (one level deeper
+than `newsletter.tex`), and `../../../resources/` in `article2/Makefile` /
+`article3/Makefile`'s pandoc invocation. This is exactly why `template/`
+only builds once copied to an actual `vol<N>/issue<M>/` location: its paths
+already assume that depth, so it's checked by copying it there (see
+`CONTRIBUTING.md`), not by building it where it sits.
+
+The root `Makefile` builds every issue it finds
+(`$(wildcard vol*/issue*)`); each issue also has its own `Makefile` (see
+below) to build just that issue standalone.
+
+## Building one issue
+
+Within one issue folder, a PDF is produced two ways: a per-article
+`wrapper.pdf` (built inside `editorial/`, `article1/`, `article2/`,
+`article3/`) and the merged `newsletter.pdf` (built at that issue's own
+root). Both are plain LaTeX documents in the end — the article folders just
+get there by different routes.
 
 ```
 article1/art.tex  ──────────────┐
@@ -73,12 +99,16 @@ header for the title, subtitle, DOI, authors (name/email/ORCID/affiliation
 index), and an affiliations list (name/index/ROR). Its `Makefile` runs:
 
 ```
-pandoc --from markdown+raw_tex -s --template=resources/pandoc.template \
+pandoc --from markdown+raw_tex -s --template=../../../resources/pandoc.template \
   --biblatex \
-  --lua-filter=resources/filters/extract-cito.lua \
-  --lua-filter=resources/filters/cito-to-biblatex.lua \
+  --lua-filter=../../../resources/filters/extract-cito.lua \
+  --lua-filter=../../../resources/filters/cito-to-biblatex.lua \
   --output=art.tex art.md
 ```
+
+(`../../../resources/` because `article2/` sits three levels below the
+repository root, where `resources/` actually lives — see "Repository
+structure" above.)
 
 This is modeled on the pandoc invocation in the
 [BioHackrXiv](https://biohackrxiv.org/) paper-generation project
@@ -146,12 +176,15 @@ whether it's compiled standalone (via its own `wrapper.tex`) or merged (via
 `newsletter.tex`), the two contexts render that article's reference list
 identically.
 
-Two articles' `.bib` files should not reuse the same citation key, even if
-they never cite each other's entries: `newsletter.tex` loads every article's
-`.bib` resource at once (each `refsection` only *uses* its own article's
-keys, but all resources are visible to all of them), so a key repeated
-across two `.bib` files is a real ambiguity once they're merged into one
-document — `article1/art.bib` and `article2/art.bib` collided this way
-during development (both had copied the same placeholder entry under the
-key `Lorem2026`) and were fixed by renaming one; keep citation keys unique
-newsletter-wide to avoid it recurring.
+Two articles' `.bib` files *within the same issue* should not reuse the same
+citation key, even if they never cite each other's entries: that issue's
+`newsletter.tex` loads every one of its articles' `.bib` resources at once
+(each `refsection` only *uses* its own article's keys, but all resources are
+visible to all of them), so a key repeated across two `.bib` files is a real
+ambiguity once they're merged into one document — `article1/art.bib` and
+`article2/art.bib` collided this way during development (both had copied the
+same placeholder entry under the key `Lorem2026`) and were fixed by renaming
+one; keep citation keys unique within an issue to avoid it recurring. Keys
+*can* be reused across different issues (`vol1/issue1/article1/art.bib`'s
+keys and `vol1/issue2/article1/art.bib`'s keys, say) since different issues
+never share a `newsletter.tex`/compilation.

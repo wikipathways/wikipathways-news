@@ -1,0 +1,66 @@
+\documentclass[a4paper]{report}
+\usepackage{lineno}
+\usepackage{../../WPnews}
+\graphicspath{{../../}}
+\usepackage{lipsum}
+
+\addbibresource{article1/art.bib}
+\addbibresource{article2/art.bib}
+
+\begin{document}
+
+% Fill these in for the real issue - e.g. \volume{2}, \volnumber{1} for
+% vol2/issue1, \date{March 2027}. They are independent of the vol<N>/
+% issue<M> folder names, which are just this repository's own bookkeeping.
+\volume{VOLUME}
+\volnumber{ISSUE}
+\date{MONTH YEAR}
+
+\titlepage
+
+\begin{article}
+  \input{editorial/art}
+\end{article}
+
+\newpage
+
+\begin{article}
+  \input{article1/art}
+\end{article}
+
+\newpage
+
+\begin{article}
+  \input{article2/art}
+\end{article}
+
+\newpage
+
+\begin{article}
+  \input{article3/art}
+\end{article}
+
+\begin{bottombox}
+\begin{multicols}{2}
+\strong{Web page:}\\
+\url{https://www.wikipathways.org/} \\
+\strong{Editor-in-Chief:}\\
+Egon Willighagen \email{egon.willighagen@gmail.com}\\
+\strong{Editorial Board:}\\
+The WikiPathways curator team.\\
+\\
+\emph{WikiPathways News} is a publication of the WikiPathways project.
+All articles are copyrighted with CC BY 4.0 by the respective authors.
+Submissions can be submitted via the web page.\\
+\\
+\WP Project web pages:\\
+\url{https://www.wikipathways.org/} \\
+\url{https://github.com/wikipathways/}\\
+\\
+\strong{Logo credit:}\\
+The \WP logo is \copyright\ Alex Pico, licensed under
+CC~BY-SA~4.0 (\href{https://commons.wikimedia.org/wiki/File:Wplogo_500.png}{source}).
+\end{multicols}
+\end{bottombox}
+
+\end{document}
