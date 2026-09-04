@@ -83,14 +83,21 @@
     \@mkboth{%
       \MakeUppercase\contentsname}{\MakeUppercase\contentsname}}%
   \@starttoc{toc}}
+\newlength{\WPnews@capheight}
 \renewcommand{\titlepage}{%
   \noindent
   \rule{\textwidth}{1pt}\\[-.8\baselineskip]
   \rule{\textwidth}{.5pt}
   \begin{center}
-    \includegraphics[height=2cm]{WPlogo}\hspace{7mm}
-    \fontsize{2cm}{2cm}\selectfont
-    News
+    % Logo height is tied to the cap-height of the "W" in the title (at
+    % the title's chosen font size), then the whole logo+title line is
+    % scaled to fill \textwidth - since "WikiPathways News" is far longer
+    % than the old "News", this is what shrinks it back down to fit on
+    % one line rather than a fixed, potentially-too-large font size.
+    \settoheight{\WPnews@capheight}{\fontsize{2cm}{2cm}\selectfont W}%
+    \resizebox{\textwidth}{!}{%
+      \includegraphics[height=\WPnews@capheight]{WPicon}\hspace{7mm}%
+      \fontsize{2cm}{2cm}\selectfont WikiPathways News}%
   \end{center}
   The Newsletter of the WikiPathways Project\hfill
   Volume \WPnews@volume/\WPnews@number, \WPnews@date\\[-.5\baselineskip]

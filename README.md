@@ -13,7 +13,7 @@ text — this project is a template/skeleton to build real issues from.
 ```
 WPnews.sty          House style: title page, two-column article layout,
                      \address/\email/\orcidlink/ROR/affiliation macros, etc.
-WPlogo.png           WikiPathways logo (CC BY-SA 4.0, Alex Pico), used on
+WPicon.png           WikiPathways icon (CC BY-SA 4.0, Alex Pico), used on
                      the title page.
 newsletter.tex        Top-level document: title page + \input of each
                        article + back-page colophon.
@@ -21,12 +21,15 @@ Makefile              Builds the whole issue (see "Building" below).
 
 editorial/             The issue's editorial (LaTeX).
 article1/               A LaTeX-authored article.
-article2/               A Markdown-authored article (converted via pandoc).
+article2/               A Markdown-authored article (converted via pandoc),
+                         with a citation and reference list.
+article3/               A Markdown-authored article with no citations, to
+                         demonstrate a references section is optional.
 resources/              Shared pandoc template and Lua filters used by
                          Markdown-authored articles.
 ```
 
-Each of `editorial/`, `article1/`, `article2/` is buildable standalone
+Each of `editorial/`, `article1/`, `article2/`, `article3/` is buildable standalone
 (producing its own `wrapper.pdf`) and is also pulled into the merged
 `newsletter.pdf`.
 

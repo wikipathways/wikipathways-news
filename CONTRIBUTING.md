@@ -145,10 +145,10 @@ sequence" that's really just a missing `texlive` package.
 
 ## `curl`
 
-Used once, to fetch the WikiPathways logo used on the title page.
+Used to fetch the WikiPathways logo image(s) used on the title page.
 
 ```sh
-curl -sL -o WPlogo.png "https://upload.wikimedia.org/wikipedia/commons/8/83/Wplogo_with_text_500.png"
+curl -sL -o WPicon.png "https://upload.wikimedia.org/wikipedia/commons/3/34/Wplogo_500.png"
 ```
 
 Why: the direct image URL (as opposed to the Wikimedia Commons *file
@@ -156,7 +156,15 @@ description page*, which is an HTML page, not the image) was resolved first
 via `WebFetch` reading the description page for the real upload URL and its
 CC BY-SA 4.0 / Alex Pico attribution, then downloaded with `curl` for use in
 the project — with the attribution added to `newsletter.tex`'s back-page
-colophon per that license's requirements.
+colophon per that license's requirements. The project initially used a
+different Commons file, `Wplogo_with_text_500.png` (the icon plus a
+"WikiPathways" wordmark baked into the same image), which worked fine at a
+fixed height; once the title-page banner needed to size the logo to exactly
+the title text's cap-height, that combined image made the icon glyph itself
+shrink to near-invisibility (most of the image's height being the wordmark
+below it) — `WebFetch` on the Commons search results page for "WikiPathways
+logo" found the icon-only `Wplogo_500.png` instead, which was the actual
+fix, not a code change.
 
 ## `grep` / `find`
 

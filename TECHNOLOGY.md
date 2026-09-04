@@ -1,15 +1,15 @@
 # Technology behind the build
 
 This project produces a PDF two ways: a per-article `wrapper.pdf` (built
-inside `editorial/`, `article1/`, `article2/`) and the merged `newsletter.pdf`
-(built at the project root). Both are plain LaTeX documents in the end — the
-two article folders just get there by different routes.
+inside `editorial/`, `article1/`, `article2/`, `article3/`) and the merged
+`newsletter.pdf` (built at the project root). Both are plain LaTeX documents
+in the end — the article folders just get there by different routes.
 
 ```
 article1/art.tex  ──────────────┐
 editorial/art.tex ───────────── ┼─▶ pdflatex/biblatex ──▶ wrapper.pdf (each)
-article2/art.md ──▶ pandoc ─────┘         │
-                                           ▼
+article2/art.md ──▶ pandoc ─────┤         │
+article3/art.md ──▶ pandoc ─────┘         ▼
                     newsletter.tex ──▶ pdflatex/biblatex ──▶ newsletter.pdf
 ```
 
@@ -52,8 +52,13 @@ from a per-article `wrapper.tex` (`\documentclass{report}` +
   since both ultimately go through the same `\printbibliography`.
 
 Fonts are URW Palatino/`mathpple`+`ae` (`T1` encoding); ISSN/branding text and
-the WikiPathways logo (`WPlogo.png`) are on the title page and back-page
-colophon.
+the WikiPathways icon (`WPicon.png`) are on the title page and back-page
+colophon. The title-page banner ("WikiPathways News") sizes the icon to
+exactly the cap-height of the title's "W" (`\settoheight`, a core LaTeX
+command — measure a glyph's height into a length register), then scales the
+whole icon+title line to fill `\textwidth` with `graphicx`'s `\resizebox`,
+which is what keeps it on one line and shrinks the title font to fit
+regardless of exactly how long the title text is.
 
 ## Route A — articles written directly in LaTeX
 
