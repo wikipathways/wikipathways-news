@@ -80,7 +80,9 @@ cd vol1/issue1/article2 && make      # -> vol1/issue1/article2/wrapper.pdf
 
 Requires a TeX Live installation (`lualatex`, `biblatex`, `biber`) and, for
 Markdown-authored articles, [`pandoc`](https://pandoc.org/) (tested with
-pandoc 3.1).
+pandoc 3.1). Before the first build on a given machine, run `make
+install-fonts` once (see the root `Makefile`) to install the vendored
+Poppins font into TeX Live where lualatex can find it by name.
 
 ## Starting a new issue
 
