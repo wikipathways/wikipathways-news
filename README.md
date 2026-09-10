@@ -78,7 +78,7 @@ cd vol1/issue1/article1 && make      # -> vol1/issue1/article1/wrapper.pdf
 cd vol1/issue1/article2 && make      # -> vol1/issue1/article2/wrapper.pdf
 ```
 
-Requires a TeX Live installation (`pdflatex`, `biblatex`, `biber`) and, for
+Requires a TeX Live installation (`lualatex`, `biblatex`, `biber`) and, for
 Markdown-authored articles, [`pandoc`](https://pandoc.org/) (tested with
 pandoc 3.1).
 

@@ -11,10 +11,10 @@ news: separateArts newsletter.pdf
 # biblatex (backend=biber, see WPnews.sty): one biber run resolves every
 # \begin{article}'s refsection in this document, regardless of how many.
 newsletter.pdf: newsletter.tex
-	pdflatex -interaction=nonstopmode newsletter
+	lualatex -interaction=nonstopmode newsletter
 	biber newsletter
-	pdflatex -interaction=nonstopmode newsletter
-	pdflatex -interaction=nonstopmode newsletter
+	lualatex -interaction=nonstopmode newsletter
+	lualatex -interaction=nonstopmode newsletter
 
 update: newsletter.pdf
 

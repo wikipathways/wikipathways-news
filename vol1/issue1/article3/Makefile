@@ -33,8 +33,8 @@ art.tex: art.md $(TEMPLATE)
 	  --output=art.tex art.md
 
 wrapper.pdf: art.tex wrapper.tex
-	pdflatex -interaction=nonstopmode wrapper
-	pdflatex -interaction=nonstopmode wrapper
+	lualatex -interaction=nonstopmode wrapper
+	lualatex -interaction=nonstopmode wrapper
 
 update: wrapper.pdf
 

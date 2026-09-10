@@ -3,10 +3,10 @@ all: wrapper.pdf
 # biblatex (backend=biber, see WPnews.sty): one biber run resolves every
 # \begin{article}'s refsection in this document, regardless of how many.
 wrapper.pdf: *.tex art.bib
-	pdflatex -interaction=nonstopmode wrapper
+	lualatex -interaction=nonstopmode wrapper
 	biber wrapper
-	pdflatex -interaction=nonstopmode wrapper
-	pdflatex -interaction=nonstopmode wrapper
+	lualatex -interaction=nonstopmode wrapper
+	lualatex -interaction=nonstopmode wrapper
 
 update: wrapper.pdf
 

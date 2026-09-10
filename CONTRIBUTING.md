@@ -22,17 +22,17 @@ track precisely (e.g. `resources/pandoc.template` changing while
 `article2/art.tex` was still newer on disk) — important when actively
 editing the shared template/filters.
 
-## `pdflatex`, run directly
+## `lualatex`, run directly
 
 Used outside of `make` when debugging a LaTeX error in isolation, so the
 failure and its exact log line are visible without unrelated build output in
 the way.
 
 ```sh
-pdflatex -interaction=nonstopmode -halt-on-error art
+lualatex -interaction=nonstopmode -halt-on-error art
 ```
 
-Why `-interaction=nonstopmode -halt-on-error`: plain `pdflatex` drops into an
+Why `-interaction=nonstopmode -halt-on-error`: plain `lualatex` drops into an
 interactive `?` prompt on error and hangs; these flags make it fail fast and
 non-interactively. This is also useful for catching *silent* breakage:
 comparing `pdftotext` output before/after a change surfaced a case where
@@ -50,21 +50,21 @@ hand — every article uses biblatex with `backend=biber` (see
 `TECHNOLOGY.md`). One `biber <jobname>` run resolves *every*
 `\begin{article}`'s `refsection` in that document at once, regardless of how
 many there are — unlike `bibtex`, which needs a separate run per
-`refsection`, on a filename only known after the first `pdflatex` pass (see
+`refsection`, on a filename only known after the first `lualatex` pass (see
 below for why that was the fallback for a while). Full sequence when
 debugging by hand:
 
 ```sh
-pdflatex -interaction=nonstopmode wrapper
+lualatex -interaction=nonstopmode wrapper
 biber wrapper
-pdflatex -interaction=nonstopmode wrapper
-pdflatex -interaction=nonstopmode wrapper
+lualatex -interaction=nonstopmode wrapper
+lualatex -interaction=nonstopmode wrapper
 ```
 
 Why: `biber`'s own log (`<jobname>.blg`) is where to look first when a
 citation doesn't resolve or a `.bib` entry seems to be getting the wrong
 data — it reports, per `refsection`, which `.bib` file(s) it searched and
-what it found, which is more direct than working backwards from `pdflatex`'s
+what it found, which is more direct than working backwards from `lualatex`'s
 "undefined reference" warnings.
 
 Biber wasn't available when biblatex was first added to this project (this
@@ -112,7 +112,7 @@ without looking at the actual wire format.
 ## `pdftoppm` (poppler-utils) + visual inspection
 
 Every non-trivial layout change was rendered to PNG and actually looked at,
-not just compiled. A clean `pdflatex` exit code does not mean the ORCID badge
+not just compiled. A clean `lualatex` exit code does not mean the ORCID badge
 sits in the right place or that a table of contents entry links correctly.
 
 ```sh

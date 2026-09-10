@@ -1,8 +1,8 @@
 all: wrapper.pdf
 
 wrapper.pdf: *.tex
-	pdflatex wrapper
-	pdflatex wrapper
+	lualatex wrapper
+	lualatex wrapper
 
 update: wrapper.pdf
 
