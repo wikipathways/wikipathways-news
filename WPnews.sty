@@ -57,7 +57,7 @@
   \renewcommand{\@seccntformat}[1]{}%
   \@startsection{chapter}{0}{0mm}{%
     -2\baselineskip \@plus -\baselineskip \@minus -.2ex}{\p@}{%
-    \wppoppins\Huge\bfseries\raggedright}}
+    \wpheadingfont\Huge\bfseries\raggedright}}
 \renewcommand*\l@chapter{\@dottedtocline{0}{0pt}{1em}}
 \def\@schapter#1{\section*{#1}}
 \renewenvironment{figure}[1][]{%
@@ -94,10 +94,10 @@
     % scaled to fill \textwidth - since "WikiPathways News" is far longer
     % than the old "News", this is what shrinks it back down to fit on
     % one line rather than a fixed, potentially-too-large font size.
-    \settoheight{\WPnews@capheight}{\wppoppins\fontsize{2cm}{2cm}\selectfont W}%
+    \settoheight{\WPnews@capheight}{\wpheadingfont\fontsize{2cm}{2cm}\selectfont W}%
     \resizebox{\textwidth}{!}{%
       \includegraphics[height=\WPnews@capheight]{WPicon}\hspace{7mm}%
-      \wppoppins\fontsize{2cm}{2cm}\selectfont WikiPathways News}%
+      \wpheadingfont\fontsize{2cm}{2cm}\selectfont WikiPathways News}%
   \end{center}
   The Newsletter of the WikiPathways Project\hfill
   Volume \WPnews@volume/\WPnews@number, \WPnews@date\\[-.5\baselineskip]
@@ -128,21 +128,18 @@
 \renewcommand{\rmdefault}{ppl}
 \renewcommand{\sfdefault}{aess}
 \renewcommand{\ttdefault}{aett}
-% Poppins, matching the WikiPathways website's house style (see
+% Linux Libertine, matching the WikiPathways website's house style (see
 % WP_HOUSE_STYLE.md and wikipathways.github.io/style.md), scoped to
-% \wppoppins rather than made the document default: used only for the
+% \wpheadingfont rather than made the document default: used only for the
 % front-page "WikiPathways News" masthead and article/editorial titles
-% (\WPnews@chapter above). Resolved by name (not by an explicit file
-% path): fontspec's Path=/Extension= mechanism for loading a font directly
-% from resources/fonts/ made lualatex intermittently fail to embed it when
-% this newsletter's articles are all combined into one document. Loading
-% it the same way the CTAN `libertine` package loads Linux Libertine - by
-% name, through luaotfload's own font database - does not have that
-% problem, but means Poppins must first be installed where that database
-% can find it: run `make install-fonts` (see the repository root
-% Makefile) once per machine before building.
-\RequirePackage{fontspec}
-\newfontfamily\wppoppins{Poppins}
+% (\WPnews@chapter above). Loaded via the CTAN `libertine` package, i.e.
+% resolved by name through TeX Live's own font database, rather than by
+% an explicit file path to a vendored copy: the latter (tried first, for
+% both Linux Libertine and Poppins) made lualatex intermittently fail to
+% embed the font once this newsletter's articles are all combined into
+% one document - see RESTYLING.md.
+\RequirePackage{libertine}
+\newcommand{\wpheadingfont}{\libertine}
 \definecolor{Red}{rgb}{0.7,0,0}
 \definecolor{Blue}{rgb}{0,0,0.8}
 \definecolor{hellgrau}{rgb}{0.55,0.55,0.55}
