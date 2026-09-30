@@ -8,15 +8,29 @@ style defined in [`WPnews.sty`](WPnews.sty). Issues are grouped into
 **volumes**; a volume typically has at least two issues.
 
 All content of **WikiPathways News** is written by people. Originality is more
-important than volume.
+important than volume. Articles will get DOIs via Zenodo and are submitted using
+a well-defined LaTeX or Markdown template.
+
+## Editorial policy
+
+The **WikiPathways News** accepts original articles describing work involving WikiPathways.
+Summaries of new research articles is allowed, as well is descriptions of use cases,
+hackathon reports, etc. Work that has a potential to be published as journal article
+is discouraged. Articles are written in English. Work will be copy-edited but not
+peer reviewed. Software and data should be properly cited.
+
+## Editorial team
+
+* Martina Kutkom
+* Egon Willighagen
+
+## Project layout
 
 This repository holds many issues over time: `vol1/issue1/`, `vol1/issue2/`,
 `vol2/issue1/`, and so on, each an independent, standalone-buildable
 newsletter. Everything an issue needs that doesn't change between issues -
 the house style, the logo, the pandoc pipeline for Markdown-authored
 articles - lives once at the repository root and is shared by every issue.
-
-## Project layout
 
 ```
 WPnews.sty          House style: title page, two-column article layout,
