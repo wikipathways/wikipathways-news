@@ -1,10 +1,14 @@
 # WikiPathways News
 
-A LaTeX newsletter project for **WikiPathways News**, modeled on the *CDK News*
-newsletter (see `../cdk-cdknews/`). One **issue** is assembled from a title
+A newsletter project for WikiPathways, modeled on the *CDK News*
+newsletter (see [this Wikipedia page]()). **WikiPathways News** is published as
+one volume per year, several issues per volume. One **issue** is assembled from a title
 page, an editorial, and one or more articles, all typeset with a shared house
 style defined in [`WPnews.sty`](WPnews.sty). Issues are grouped into
 **volumes**; a volume typically has at least two issues.
+
+All content of **WikiPathways News** is written by people. Originality is more
+important than volume.
 
 This repository holds many issues over time: `vol1/issue1/`, `vol1/issue2/`,
 `vol2/issue1/`, and so on, each an independent, standalone-buildable
