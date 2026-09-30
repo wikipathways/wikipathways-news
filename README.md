@@ -21,7 +21,7 @@ peer reviewed. Software and data should be properly cited.
 
 ## Editorial team
 
-* Martina Kutkom
+* Martina Kutmon
 * Egon Willighagen
 
 ## Project layout
