@@ -17,7 +17,8 @@ The **WikiPathways News** accepts original articles describing work involving Wi
 Summaries of new research articles is allowed, as well is descriptions of use cases,
 hackathon reports, etc. Work that has a potential to be published as journal article
 is discouraged. Articles are written in English. Work will be copy-edited but not
-peer reviewed. Software and data should be properly cited.
+peer reviewed. Software and data should be properly cited. Only CC-BY-licensed material
+is published.
 
 ## Editorial team
 
